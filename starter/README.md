@@ -156,6 +156,46 @@ In [ts/types.ts](ts/types.ts), `const { x: horizontal } = point` reads `point.x`
 
 **Output** `T1: 1`
 
+### T2 — Tuples and `as const`
+
+`taskEntry()` returns `[number, string]`, so destructuring gives `taskId` a number type and `taskTitle` a string type. The expression `[2, 'App Store’u güncelle'] as const` creates a readonly tuple type with the literal types `2` and `'App Store’u güncelle'` at those positions.
+
+```text
+T2 tuple: 1 Brew’i güncelle
+T2 as const: 2 App Store’u güncelle
+```
+
+### T3 — Missing array items with `noUncheckedIndexedAccess`
+
+`const [firstTask] = pendingTasks` infers `firstTask` as `string | undefined` because `pendingTasks` is a `string[]` and may be empty. In this example it is empty, so `firstTask ?? 'No task queued'` uses the fallback.
+
+```text
+T3: undefined No task queued
+```
+
+### T4 — Optional fields and defaults
+
+`TaskOptions` declares `priority?: string`. Reading that property into `rawPriority` gives it the type `string | undefined`. Reading it with `priority = 'normal'` gives the local `priority` the type `string`, since the default handles `undefined`.
+
+```text
+T4: undefined normal
+```
+
+### T5 — Destructuring a missing property
+
+The line `const { z } = point` tries to read a property outside the declared shape of `point`. A compiler run with the `@ts-expect-error` directive omitted produced this diagnostic.
+
+```text
+TS2339 Property 'z' does not exist on type '{ x: number; y: number; }'.
+```
+
+The example uses the directive on that line to keep the invalid case visible while still type-checking the project. The fix is `const { y: vertical } = point`, which reads a declared property. At runtime the missing property produces `undefined` and the corrected binding contains `2`.
+
+```text
+T5 invalid: undefined
+T5 fixed: 2
+```
+
 ## Pitfalls
 
 ### Pitfall 1 — Destructuring `undefined`
@@ -175,7 +215,88 @@ A: <section><h2>Hi</h2>text</section>
 B: <section><h2>Hi</h2>text</section>
 ```
 
-The [TypeScript Card](ts/props.tsx) uses `CardProps` with a string `title` and an optional `children?: ReactNode`. Its rendered output is `<section><h2>Hi</h2>text</section>`.
+In [ts/props.tsx](ts/props.tsx), both `Card` and `CardFromProps` use `CardProps` with a string `title` and an optional `children?: ReactNode`. The destructured component prints first, then the one that reads from the props object.
+
+```text
+<section><h2>Hi</h2>text</section>
+P1 props object: <section><h2>Hi</h2>text</section>
+```
+
+### P2 — JSX content and the `children` prop
+
+The text between `<Card title="Updates">` and `</Card>` arrives in `props.children`. Passing `children="Brew"` explicitly gives the component the same value. Both source files render these cases.
+
+```text
+P2 nested: <section><h2>Updates</h2>Brew</section>
+P2 explicit: <section><h2>Updates</h2>Brew</section>
+```
+
+### P3 — What React renders as children
+
+Strings and numbers render as text. One element becomes one HTML element, and the array in this example renders both elements in order. The `undefined`, `null`, and `false` samples leave the section with just its heading.
+
+```text
+P3 string: <section><h2>Child</h2>Brew</section>
+P3 number: <section><h2>Child</h2>2</section>
+P3 element: <section><h2>Child</h2><strong>Brew</strong></section>
+P3 elements: <section><h2>Child</h2><strong>Brew</strong><em>App Store</em></section>
+P3 undefined: <section><h2>Child</h2></section>
+P3 null: <section><h2>Child</h2></section>
+P3 false: <section><h2>Child</h2></section>
+```
+
+The JavaScript example passes `renderBrew` directly to `CardB`. React emits `Functions are not valid as a React child.` and leaves the content after the heading empty. In both files, `RenderChild` calls the function and passes its returned element to the card component. The TypeScript version declares the callback as `children: () => ReactNode`.
+
+```text
+P3 function direct: <section><h2>Child</h2></section>
+P3 function called: <section><h2>Child</h2><strong>Brew</strong></section>
+```
+
+### P4 — Forwarding the remaining props
+
+`ForwardedCard` takes `title` and `children` out of the props object. It forwards `rest`, including `aria-label` and the caller's `className`, to each `<section>`. In the first section, `className="task-card"` comes after the spread and wins. In the second, the spread comes last and supplies `className="highlight"`.
+
+```text
+P4: <section class="task-card" aria-label="Update task"><h2>Updates</h2>Brew</section><section class="highlight" aria-label="Update task"><h2>Updates</h2>Brew</section>
+```
+
+### P5 — Named slots and children
+
+`SlotPanel` puts `header` and `footer` props in fixed positions and uses `children` for the body. Choose named slots when the component owns the placement and markup. `ChildrenPanel` wraps the supplied children in an article. Choose that API when the caller should decide what goes inside the article and in what order.
+
+```text
+P5 slots: <article><header>Updates</header><div>Brew</div><footer>Two tasks</footer></article>
+P5 children: <article><header>Updates</header><div>Brew</div><footer>Two tasks</footer></article>
+```
+
+### P6 — A default value for a prop
+
+`Banner` uses `{ label = 'Updates' }`. An explicit `undefined` activates the default and shows `Updates`. An explicit `null` is kept by destructuring, so React renders the paragraph with empty content.
+
+```text
+P6 undefined: <p>Updates</p>
+P6 null: <p></p>
+```
+
+### P7 — Types for children and forwarded props
+
+- `CardProps` declares `children?: ReactNode`, so a card can omit its children or accept values such as text and JSX elements.
+- `PropsWithChildren` adds optional `children` to `SlotPanelProps`. `header` and `footer` are still required by the slot type.
+- `ComponentProps<'button'>` gives `TaskButton` native button props. The example forwards `disabled` and `aria-label` and defaults `type` to `'button'`.
+
+```text
+P7 optional child: <section><h2>Updates</h2></section>
+P7 slots without child: <article><header>Updates</header><div></div><footer>Two tasks</footer></article>
+P7 button: <button type="button" disabled="" aria-label="Run updates">Run</button>
+```
+
+A separate compiler run tested a function passed directly to `Card`, a `SlotPanel` call with just `header="Updates"`, and a `TaskButton` call with `type="link"`, in that order.
+
+```text
+TS2322 Type '() => React.JSX.Element' is not assignable to type 'ReactNode'.
+TS2741 Property 'footer' is missing in type '{ header: string; }' but required in type '{ header: ReactNode; footer: ReactNode; }'.
+TS2322 Type '"link"' is not assignable to type '"button" | "submit" | "reset" | undefined'.
+```
 
 ## JavaScript vs TypeScript
 
