@@ -8,6 +8,10 @@ function minMax(numbers: number[]): [number, number] {
 const [lowest, highest] = minMax([4, 9, 2])
 console.log('form 1:', lowest, highest) // form 1: 2 9
 
+const updateMinutes: number[] = [12, 7, 18]
+const [quickestUpdate, longestUpdate] = minMax(updateMinutes)
+console.log('form 1 update minutes:', quickestUpdate, longestUpdate)
+
 // Form 2
 const [, second, ...others]: number[] = [4, 9, 2, 10, 1, 0]
 console.log('form 2:', second, others)

@@ -6,6 +6,12 @@ const task = { id: 't1', title: 'Buy milk', status: 'todo' }
 const { title, status } = task
 console.log('form 5:', title, status) // form 5: Buy milk todo
 
+{
+  const updateTask = { id: 'brew', title: 'Brew’i güncelle', status: 'todo' }
+  const { title, status } = updateTask
+  console.log('form 5 update task:', title, status)
+}
+
 // Form 6: rename while you take it, { title: heading }
 // TODO
 const { title:heading, status: status2 } = task

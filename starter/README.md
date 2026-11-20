@@ -1,8 +1,5 @@
 # Destructuring Field Guide
 
-Name: Your Full Name  
-Student number: 0000000000
-
 ## Run
 
 ```sh
@@ -11,13 +8,13 @@ npm run all      # runs the JS and TS examples
 npm run check    # type-checks in strict mode
 ```
 
-The starter outputs come from the recorded [`npm run all` session](../outputs.md). The Form 2 output comes from running `js/arrays.mjs` directly. Both parameter files were run for Forms 11, 11b, and 12 and produced matching output.
+Run these commands from the folder that contains `package.json`. The full console output is in [output.txt](output.txt). The React warning in P3 is printed to standard error.
 
 ## Field guide
 
 ### Form 1 — Array destructuring by position
 
-**Syntax** `const [lowest, highest] = minMax([4, 9, 2])`
+**Syntax** `const [quickestUpdate, longestUpdate] = minMax(updateMinutes)`
 
 **Example** from [js/arrays.mjs](js/arrays.mjs)
 
@@ -26,11 +23,12 @@ function minMax(numbers) {
   return [Math.min(...numbers), Math.max(...numbers)]
 }
 
-const [lowest, highest] = minMax([4, 9, 2])
-console.log('form 1:', lowest, highest)
+const updateMinutes = [12, 7, 18]
+const [quickestUpdate, longestUpdate] = minMax(updateMinutes)
+console.log('form 1 update minutes:', quickestUpdate, longestUpdate)
 ```
 
-**Output** `form 1: 2 9`
+**Output** `form 1 update minutes: 7 18`
 
 **Use it when** a function returns several values in a known order.
 
@@ -53,6 +51,48 @@ console.log('form 2:', second, others)
 
 **Watch out for short arrays.** The leading comma skips the first position. If the array ends at the second position, `others` is `[]`.
 
+### Form 3 — Swapping variables
+
+**Syntax** `[a, b] = [b, a]`
+
+**Example** from [js/arrays.mjs](js/arrays.mjs)
+
+```js
+let a = 1
+let b = 2
+console.log('form 3p1:', a, b);
+[a, b] = [b, a]
+console.log('form 3p2:', a, b)
+```
+
+**Output**
+
+```text
+form 3p1: 1 2
+form 3p2: 2 1
+```
+
+**Use it when** two existing variables need to exchange values. The right-hand array captures both old values before the pattern assigns them in order.
+
+**Watch out for statement boundaries.** A line that starts with `[` can continue the previous expression. The terminator after `console.log` makes the swap a separate statement. Both variables must be reassignable.
+
+### Form 4 — Defaults for array positions
+
+**Syntax** `const [c = 1, d = 2] = []`
+
+**Example** from [js/arrays.mjs](js/arrays.mjs)
+
+```js
+const [c = 1, d = 2] = []
+console.log('form 4:', c, d)
+```
+
+**Output** `form 4: 1 2`
+
+**Use it when** optional positions in a sequence have sensible fallback values.
+
+**Watch out for `null`.** An absent position or an explicit `undefined` activates its default. An explicit `null` is kept as the value.
+
 ### Form 5 — Object destructuring by property name
 
 **Syntax** `const { title, status } = task`
@@ -63,13 +103,121 @@ console.log('form 2:', second, others)
 const task = { id: 't1', title: 'Buy milk', status: 'todo' }
 const { title, status } = task
 console.log('form 5:', title, status)
+
+{
+  const updateTask = { id: 'brew', title: 'Brew’i güncelle', status: 'todo' }
+  const { title, status } = updateTask
+  console.log('form 5 update task:', title, status)
+}
 ```
 
-**Output** `form 5: Buy milk todo`
+**Output**
+
+```text
+form 5: Buy milk todo
+form 5 update task: Brew’i güncelle todo
+```
 
 **Use it when** you need a few named properties from a larger object.
 
 **Watch out for misspelled keys.** The names in the pattern are property keys. A misspelled key in JavaScript can give you `undefined`.
+
+### Form 6 — Giving a property a local name
+
+**Syntax** `const { title: heading, status: status2 } = task`
+
+**Example** from [js/objects.mjs](js/objects.mjs), using `task` from Form 5
+
+```js
+const { title: heading, status: status2 } = task
+console.log('form 6:', heading, status2)
+```
+
+**Output** `form 6: Buy milk todo`
+
+**Use it when** a property needs a clearer local name or its name is already used in the scope.
+
+**Watch out for the direction.** `title: heading` reads `task.title` into `heading`. The key is on the left and the local variable is on the right.
+
+### Form 7 — Defaults for object properties
+
+**Syntax** `const { priority = 'normal' } = task`
+
+**Example** from [js/objects.mjs](js/objects.mjs)
+
+```js
+const { title: title3, priority = 'normal', status: status3 } = task
+console.log('form 7:', title3, priority, status3)
+```
+
+**Output** `form 7: Buy milk normal todo`
+
+**Use it when** an optional setting has a standard value, such as tasks starting at normal priority.
+
+**Watch out for where the default applies.** `task` has no `priority` key, so the local variable receives `'normal'`. Adding a default to the pattern creates a local binding without adding a property to `task`.
+
+### Form 8 — Collecting the remaining object properties
+
+**Syntax** `const { id, ...others } = task`
+
+**Example** from [js/objects.mjs](js/objects.mjs)
+
+```js
+const { id, ...others } = task
+console.log('form 8:', id, others)
+```
+
+**Output** `form 8: t1 { title: 'Buy milk', status: 'todo' }`
+
+**Use it when** one field needs separate handling and the remaining fields should travel together.
+
+**Watch out for shallow copies.** `others` holds the remaining own enumerable properties in a new object. Nested objects are shared with the original. The `...` collects values in a binding pattern and expands them in an expression such as `{ ...others }`.
+
+### Form 9 — Nested objects and arrays
+
+**Syntax** `const { owner: { name: owner }, os: [os1] } = details`
+
+**Example** from [js/objects.mjs](js/objects.mjs)
+
+```js
+const details = {
+  owner: { name: 'deniz' },
+  os: ['mac', 'windows', 'ubuntu']
+}
+
+const { owner: { name: owner }, os: [os1], os: [...os] } = details
+console.log('form 9:', owner, os1)
+console.log('form 9 all os:', owner, os)
+```
+
+**Output**
+
+```text
+form 9: deniz mac
+form 9 all os: deniz [ 'mac', 'windows', 'ubuntu' ]
+```
+
+**Use it when** a nested value and an array item are both needed. This pattern reads `details.owner.name` and `details.os[0]`. Its second read of `os` collects the whole list into a separate array.
+
+**Watch out for missing containers.** The inner object pattern needs `details.owner`. The array patterns need an iterable `details.os`. An existing empty `os` array would give `os1` the value `undefined`.
+
+### Form 10 — Reading a computed key
+
+**Syntax** `const { [key]: value } = task`
+
+**Example** from [js/objects.mjs](js/objects.mjs)
+
+```js
+const key = 'status'
+const { [key]: value } = task
+console.log('form 10:', value)
+```
+
+**Output** `form 10: todo`
+
+**Use it when** an expression selects the property at runtime. Here the pattern reads the same value as `task[key]`.
+
+**Watch out for valid keys.** A missing key yields `undefined` in JavaScript. In the typed example, `keyof Task` limits the accepted names to properties declared on `Task`.
 
 ### Form 11 — Destructuring a function parameter
 
@@ -152,9 +300,12 @@ form 12 (map): appStore App Store’u güncelle done
 
 ### T1 — Renaming a property and annotating the pattern
 
-In [ts/types.ts](ts/types.ts), `const { x: horizontal } = point` reads `point.x` into a variable named `horizontal`. A type annotation follows the whole pattern, as in `const { x: horizontal }: { x: number } = point`.
+In [ts/types.ts](ts/types.ts), `const { x: horizontal } = point` reads `point.x` into a variable named `horizontal`. The typed example puts its annotation after the entire pattern with `const { x: typedHorizontal }: { x: number } = point`. Both statements bind the same number under their respective local names.
 
-**Output** `T1: 1`
+```text
+T1: 1
+T1 typed: 1
+```
 
 ### T2 — Tuples and `as const`
 
@@ -203,6 +354,40 @@ T5 fixed: 2
 In [js/pitfalls.mjs](js/pitfalls.mjs), `const { a } = undefined` throws when JavaScript tries to read a property from `undefined`. The `catch` block prints the type of the error.
 
 **Output** `pitfall 1: TypeError`
+
+### Pitfall 2 — Defaults and `null`
+
+The two object patterns read `priority` from `{ priority: undefined }` and `{ priority: null }`. The first value activates the default `'normal'`. The second is already a value, so the binding receives `null`.
+
+```text
+pitfall 2: normal null
+```
+
+### Pitfall 3 — Parentheses around an object assignment
+
+At the start of a statement, `{ status }` is parsed as a block. The following `=` then causes a syntax error. The example uses `new Function` to capture that syntax error from a short string. `({ status } = { status: 'done' })` is parsed as an assignment expression and updates the existing variable.
+
+```text
+pitfall 3: SyntaxError: Unexpected token '='
+pitfall 3 fixed: done
+```
+
+### Pitfall 4 — Shared nested objects
+
+`const { owner } = task` copies the reference to the owner object. The identity check `owner === task.owner` prints `true`. Assigning `owner.name = 'Ada'` changes the same object reachable through `task.owner`.
+
+```text
+pitfall 4: true Ada
+```
+
+### Pitfall 5 — Property names and array positions
+
+The object pattern lists `status` before `title` and still binds each property by its key. The array pattern uses the same names in the same order, so `indexedStatus` receives the title at position zero and `indexedTitle` receives the status at position one. Logging the title variable first exposes the swapped values.
+
+```text
+pitfall 5 object: Brew’i güncelle todo
+pitfall 5 array: todo Brew’i güncelle
+```
 
 ## Props and children
 
@@ -300,19 +485,33 @@ TS2322 Type '"link"' is not assignable to type '"button" | "submit" | "reset" | 
 
 ## JavaScript vs TypeScript
 
-| Form | Shared pattern | TypeScript in the starter |
-| --- | --- | --- |
-| 1 | Bind values by position with `[lowest, highest]`. | [`minMax`](ts/arrays.ts) returns `[number, number]`, so both bindings are inferred as `number`. |
-| 5 | Pick fields by name with `{ title, status }`. | [`Task`](ts/objects.ts) defines a string `title` and the allowed `status` values. |
-| 11 | Destructure options in the parameter and default `status` to `'todo'`. | [`TaskInput`](ts/params.ts) requires a `title` and makes `status` optional. |
-| 12 | Bind the key and value with `[id, task]` on each loop iteration. | [`Object.entries` and `Map`](ts/params.ts) infer a string key and a task with a string `title` and a `TaskStatus`. |
+The diagnostics below were checked by compiling invalid variations with the project's strict settings.
+
+| Form | Shared pattern | TypeScript type | Example diagnostic |
+| --- | --- | --- | --- |
+| 1 | Bind values by position with `[quickestUpdate, longestUpdate]`. | [`minMax`](ts/arrays.ts) returns `[number, number]`. | Annotating the result as `[string, number]` gives `TS2322` because the first position is a number. |
+| 2 | Skip the first position and collect the rest. | The `number[]` annotation lets `second` be undefined. `others` is a `number[]`. | `second.toFixed()` gives `TS18048`. `'second' is possibly 'undefined'.` |
+| 3 | Assign `[b, a]` into `[a, b]`. | `let a = 1` and `let b = 2` infer `number` for both variables. | `[a, b] = [b, 'done']` gives `TS2322`. `Type 'string' is not assignable to type 'number'.` |
+| 4 | Fill absent positions using defaults. | `number[]` supplies the element type, and the numeric defaults make each binding a number. | A `'normal'` default in the numeric pattern gives `TS2322`. `Type 'string' is not assignable to type 'number'.` |
+| 5 | Pick fields by name with `{ title, status }`. | [`Task`](ts/objects.ts) defines a string `title` and the allowed `status` values. | Picking `description` gives `TS2339`. `Property 'description' does not exist on type 'Task'.` |
+| 6 | Read one property into a local variable with a different name. | `heading` has the type of `Task.title`, which is `string`. | Assigning `heading` to a `number` gives `TS2322`. `Type 'string' is not assignable to type 'number'.` |
+| 7 | Supply `'normal'` as a fallback. | `priority?: string` allows omission. The default gives the binding type `string`. | Calling `.toUpperCase()` on the optional property without a fallback or guard gives `TS18048`. |
+| 8 | Collect the fields left after binding `id`. | TypeScript infers the rest object from the remaining `Task` keys. | `others.id` gives `TS2339` because `id` is absent from the inferred rest type. |
+| 9 | Read a nested `name` and the first OS. | `owner` is a string. The array read `os1` may also be undefined. | `os1.toUpperCase()` gives `TS18048`. `'os1' is possibly 'undefined'.` |
+| 10 | Use `[key]` to look up the selected property. | `keyof Task` limits the key to the declared fields. | Assigning `'state'` to a `keyof Task` variable gives `TS2322`. `Type '"state"' is not assignable to type 'keyof Task'.` |
+| 11 | Destructure options in the parameter and default `status` to `'todo'`. | [`TaskInput`](ts/params.ts) requires a `title` and makes `status` optional. | `createTask({ status: 'todo' })` gives `TS2345` because the required `title` is missing. |
+| 12 | Bind the key and value with `[id, task]` on each loop iteration. | [`Object.entries` and `Map`](ts/params.ts) infer a string key and a task with a string `title` and a `TaskStatus`. | Iterating the plain `tasks` object with `for...of` gives `TS2488` because it has no `[Symbol.iterator]()` method. |
+
+## Bonus 4: Git repository
+
+[GitHub repository](https://github.com/Ahmetdoesreal/advanced_web_hw4)
+
+Run the project commands from `starter/` in the cloned repository.
 
 ## My own log
 
-- **Running `npm run dev`.** The terminal printed `npm error Missing script: "dev"`. In this project, the `all` script runs both sets of examples.
-- **Installing dependencies.** `npm install` added 13 packages and printed `npm warn install-scripts 2 packages have install scripts not yet covered by allowScripts:` for `esbuild` and `fsevents`. The later `npm run all` output includes both the JavaScript and TypeScript examples.
+- **Running `npm run dev`.** The terminal printed `npm error Missing script: "dev"`. The `scripts` field in `package.json` tells me which names this project supports. Here `all` runs both sets of examples.
+- **Installing dependencies.** `npm install` added 13 packages and printed `npm warn install-scripts 2 packages have install scripts not yet covered by allowScripts:` for `esbuild` and `fsevents`. The later `npm run all` output includes both the JavaScript and TypeScript examples. I can check the install result and run the examples to tell whether a warning affects the project.
 - **Using `*` with `npm install-scripts approve`.** The terminal printed `npm error code ENOMATCH` and `npm error No installed packages match: js, node_modules, package-lock.json, package.json, README.md, ts, tsconfig.json`. The shell expanded `*` into filenames before npm received the arguments.
 - **Getting an empty rest array in Form 2.** `minMax([4, 9, 2])` returned `[2, 9]`, so the console printed `form 2: 9 []`. The pattern skipped `2` and bound `9` to `second`, leaving the rest array empty.
-- **Swapping values after `console.log`.** The run stopped with `TypeError: Cannot set properties of undefined (setting '2')`. JavaScript read the leading `[` on the swap line as property access on the return value of `console.log`. Starting the swap line with `;` separated the statements in a test run, which printed `form 3p2: 2 1`.
-
-<!-- Add what you expected and learned from each observation in your own words. -->
+- **Swapping values after `console.log`.** The run stopped with `TypeError: Cannot set properties of undefined (setting '2')`. JavaScript read the leading `[` on the swap line as property access on the return value of `console.log`. Starting the swap line with `;` separated the statements in a test run, which printed `form 3p2: 2 1`. The final example terminates the preceding `console.log` explicitly as well.

@@ -1,0 +1,110 @@
+
+> destructuring-guide@0.0.0 all
+> npm run js && npm run ts
+
+
+> destructuring-guide@0.0.0 js
+> node js/arrays.mjs && node js/objects.mjs && node js/params.mjs && node js/pitfalls.mjs && tsx js/props.jsx
+
+form 1: 2 9
+form 1 update minutes: 7 18
+form 2: 9 [ 2, 10, 1, 0 ]
+form 3p1: 1 2
+form 3p2: 2 1
+form 4: 1 2
+form 5: Buy milk todo
+form 5 update task: Brew’i güncelle todo
+form 6: Buy milk todo
+form 7: Buy milk normal todo
+form 8: t1 { title: 'Buy milk', status: 'todo' }
+form 9: deniz mac
+form 9 all os: deniz [ 'mac', 'windows', 'ubuntu' ]
+form 10: todo
+form 11: { title: 'Brew’i güncelle', status: 'todo' }
+form 11: { title: 'App Store’u güncelle', status: 'done' }
+form 11b: Brew’i güncelle (todo)
+form 12 (object): brew Brew’i güncelle todo
+form 12 (object): appStore App Store’u güncelle done
+form 12 (map): brew Brew’i güncelle todo
+form 12 (map): appStore App Store’u güncelle done
+pitfall 1: TypeError
+pitfall 2: normal null
+pitfall 3: SyntaxError: Unexpected token '='
+pitfall 3 fixed: done
+pitfall 4: true Ada
+pitfall 5 object: Brew’i güncelle todo
+pitfall 5 array: todo Brew’i güncelle
+A: <section><h2>Hi</h2>text</section>
+B: <section><h2>Hi</h2>text</section>
+P2 nested: <section><h2>Updates</h2>Brew</section>
+P2 explicit: <section><h2>Updates</h2>Brew</section>
+P3 string: <section><h2>Child</h2>Brew</section>
+P3 number: <section><h2>Child</h2>2</section>
+P3 element: <section><h2>Child</h2><strong>Brew</strong></section>
+P3 elements: <section><h2>Child</h2><strong>Brew</strong><em>App Store</em></section>
+P3 undefined: <section><h2>Child</h2></section>
+P3 null: <section><h2>Child</h2></section>
+P3 false: <section><h2>Child</h2></section>
+P3 function direct: <section><h2>Child</h2></section>
+P3 function called: <section><h2>Child</h2><strong>Brew</strong></section>
+P4: <section class="task-card" aria-label="Update task"><h2>Updates</h2>Brew</section><section class="highlight" aria-label="Update task"><h2>Updates</h2>Brew</section>
+P5 slots: <article><header>Updates</header><div>Brew</div><footer>Two tasks</footer></article>
+P5 children: <article><header>Updates</header><div>Brew</div><footer>Two tasks</footer></article>
+P6 undefined: <p>Updates</p>
+P6 null: <p></p>
+P7 optional child: <section><h2>Updates</h2></section>
+P7 slots without child: <article><header>Updates</header><div></div><footer>Two tasks</footer></article>
+P7 button: <button type="button" disabled="" aria-label="Run updates">Run</button>
+
+> destructuring-guide@0.0.0 ts
+> tsx ts/arrays.ts && tsx ts/objects.ts && tsx ts/params.ts && tsx ts/types.ts && tsx ts/props.tsx
+
+form 1: 2 9
+form 1 update minutes: 7 18
+form 2: 9 [ 2, 10, 1, 0 ]
+form 3p1: 1 2
+form 3p2: 2 1
+form 4: 1 2
+form 5: Buy milk todo
+form 5 update task: Brew’i güncelle todo
+form 6: Buy milk todo
+form 7: Buy milk normal todo
+form 8: t1 { title: 'Buy milk', status: 'todo' }
+form 9: deniz mac
+form 9 all os: deniz [ 'mac', 'windows', 'ubuntu' ]
+form 10: todo
+form 11: { title: 'Brew’i güncelle', status: 'todo' }
+form 11: { title: 'App Store’u güncelle', status: 'done' }
+form 11b: Brew’i güncelle (todo)
+form 12 (object): brew Brew’i güncelle todo
+form 12 (object): appStore App Store’u güncelle done
+form 12 (map): brew Brew’i güncelle todo
+form 12 (map): appStore App Store’u güncelle done
+T1: 1
+T1 typed: 1
+T2 tuple: 1 Brew’i güncelle
+T2 as const: 2 App Store’u güncelle
+T3: undefined No task queued
+T4: undefined normal
+T5 invalid: undefined
+T5 fixed: 2
+<section><h2>Hi</h2>text</section>
+P1 props object: <section><h2>Hi</h2>text</section>
+P2 nested: <section><h2>Updates</h2>Brew</section>
+P2 explicit: <section><h2>Updates</h2>Brew</section>
+P3 string: <section><h2>Child</h2>Brew</section>
+P3 number: <section><h2>Child</h2>2</section>
+P3 element: <section><h2>Child</h2><strong>Brew</strong></section>
+P3 elements: <section><h2>Child</h2><strong>Brew</strong><em>App Store</em></section>
+P3 undefined: <section><h2>Child</h2></section>
+P3 null: <section><h2>Child</h2></section>
+P3 false: <section><h2>Child</h2></section>
+P3 function called: <section><h2>Child</h2><strong>Brew</strong></section>
+P4: <section class="task-card" aria-label="Update task"><h2>Updates</h2>Brew</section><section class="highlight" aria-label="Update task"><h2>Updates</h2>Brew</section>
+P5 slots: <article><header>Updates</header><div>Brew</div><footer>Two tasks</footer></article>
+P5 children: <article><header>Updates</header><div>Brew</div><footer>Two tasks</footer></article>
+P6 undefined: <p>Updates</p>
+P6 null: <p></p>
+P7 optional child: <section><h2>Updates</h2></section>
+P7 slots without child: <article><header>Updates</header><div></div><footer>Two tasks</footer></article>
+P7 button: <button type="button" disabled="" aria-label="Run updates">Run</button>

@@ -5,6 +5,8 @@
 const point = { x: 1, y: 2 }
 const { x: horizontal } = point // x is renamed to horizontal; there is no variable x
 console.log('T1:', horizontal) // T1: 1
+const { x: typedHorizontal }: { x: number } = point
+console.log('T1 typed:', typedHorizontal)
 
 // T2
 function taskEntry(): [number, string] {
